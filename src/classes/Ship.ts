@@ -57,14 +57,15 @@ export default class Ship {
     if (this.velocity["x"] < 0) if (0 > this.pos["x"]) this.velocity["x"] = 0;
     this.pos["x"] += this.velocity["x"] * dtf;
     this.pos["y"] += this.velocity["y"] * dtf;
-    console.log(this.direction["x"]);
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    ctx.beginPath();
     ctx.drawImage(
       this.texture,
       Math.round(this.pos["x"]),
       Math.round(this.pos["y"])
     );
+    ctx.closePath();
   }
 }

@@ -13,6 +13,7 @@
 
 //imports
 import Ship from "./classes/Ship.js";
+import Shot from "./classes/Shot.js";
 
 
 //init game canvas
@@ -23,7 +24,7 @@ document.body.appendChild(can);
 
 
 //init variables
-let drawObjs = new Array();
+let drawObjs: any = new Array();
 let oldDt: number = 0;
 let dt: number = 0;
 const f: number = 60;
@@ -35,9 +36,11 @@ let keysPressed: KeyMap = {
   Up: false,
   Space: false,
 };
+let prevKeyPressed: KeyMap;
 
 //init objects
-drawObjs.push(new Ship());
+const ship = new Ship();
+drawObjs.push(ship);
 
 //game loop
 const gameLoop = (currentTime: number): void => {
@@ -48,14 +51,22 @@ const gameLoop = (currentTime: number): void => {
   oldDt = currentTime;
   dtf = dt * f;
 
+  //if (keysPressed["Space"] && !prevKeyPressed["Space"]) {
+  if (keysPressed["Space"]) {
+    drawObjs.push(new Shot({x: ship["pos"]["x"] + 55, y: ship["pos"]["y"] + 23}));
+  }
+
   for (let i = 0; i < drawObjs.length; i++) {
-    drawObjs[i].update(dtf, keysPressed);
+    if (drawObjs[i].update(dtf, keysPressed)) {
+      drawObjs.splice(i, 1);
+    }
   }
 
   for (let i = 0; i < drawObjs.length; i++) {
     drawObjs[i].draw(ctx);
   }
 
+  prevKeyPressed = keysPressed;
   requestAnimationFrame(gameLoop);
 };
 
@@ -80,6 +91,9 @@ const KeyPressHandler = (evt: KeyboardEvent, down: boolean) => {
       break;
     case "ArrowDown":
       keysPressed["Down"] = down;
+      break;
+    case "Space":
+      keysPressed["Space"] = down;
       break;
   }
 }

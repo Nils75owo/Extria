@@ -12,6 +12,7 @@
 */
 //imports
 import Ship from "./classes/Ship.js";
+import Shot from "./classes/Shot.js";
 //init game canvas
 var can = document.createElement("canvas");
 var ctx = can.getContext("2d");
@@ -30,8 +31,10 @@ var keysPressed = {
     Up: false,
     Space: false,
 };
+var prevKeyPressed;
 //init objects
-drawObjs.push(new Ship());
+var ship = new Ship();
+drawObjs.push(ship);
 //game loop
 var gameLoop = function (currentTime) {
     ctx.fillStyle = "#000";
@@ -40,12 +43,19 @@ var gameLoop = function (currentTime) {
     dt = currentTime - oldDt;
     oldDt = currentTime;
     dtf = dt * f;
+    //if (keysPressed["Space"] && !prevKeyPressed["Space"]) {
+    if (keysPressed["Space"]) {
+        drawObjs.push(new Shot({ x: ship["pos"]["x"] + 55, y: ship["pos"]["y"] + 23 }));
+    }
     for (var i = 0; i < drawObjs.length; i++) {
-        drawObjs[i].update(dtf, keysPressed);
+        if (drawObjs[i].update(dtf, keysPressed)) {
+            drawObjs.splice(i, 1);
+        }
     }
     for (var i = 0; i < drawObjs.length; i++) {
         drawObjs[i].draw(ctx);
     }
+    prevKeyPressed = keysPressed;
     requestAnimationFrame(gameLoop);
 };
 //KeyPress handler
@@ -68,6 +78,9 @@ var KeyPressHandler = function (evt, down) {
             break;
         case "ArrowDown":
             keysPressed["Down"] = down;
+            break;
+        case "Space":
+            keysPressed["Space"] = down;
             break;
     }
 };

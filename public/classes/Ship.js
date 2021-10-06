@@ -65,10 +65,11 @@ var Ship = /** @class */ (function () {
                 this.velocity["x"] = 0;
         this.pos["x"] += this.velocity["x"] * dtf;
         this.pos["y"] += this.velocity["y"] * dtf;
-        console.log(this.direction["x"]);
     };
     Ship.prototype.draw = function (ctx) {
+        ctx.beginPath();
         ctx.drawImage(this.texture, Math.round(this.pos["x"]), Math.round(this.pos["y"]));
+        ctx.closePath();
     };
     return Ship;
 }());
