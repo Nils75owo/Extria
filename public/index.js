@@ -9,15 +9,24 @@
  * <
  * for (const i = 0; i < objs.length; i++) {console.log(objs[i])}
  *
-*/
+ */
 //imports
 import Ship from "./classes/Ship.js";
 import Shot from "./classes/Shot.js";
 //init game canvas
+var bgCan = document.createElement("canvas");
+var bgCtx = bgCan.getContext("2d");
+bgCan.classList.add("can");
+bgCan.id = "bgCan";
+document.body.appendChild(bgCan);
 var can = document.createElement("canvas");
 var ctx = can.getContext("2d");
+can.classList.add("can");
 can.id = "can";
 document.body.appendChild(can);
+//init images
+var bg = new Image();
+bg["src"] = "./textures/bg.png";
 //init variables
 var drawObjs = new Array();
 var oldDt = 0;
@@ -31,21 +40,30 @@ var keysPressed = {
     Up: false,
     Space: false,
 };
-var prevKeyPressed;
+var newKeysPressed = {
+    Left: false,
+    Down: false,
+    Right: false,
+    Up: false,
+    Space: false,
+};
 //init objects
 var ship = new Ship();
 drawObjs.push(ship);
 //game loop
 var gameLoop = function (currentTime) {
-    ctx.fillStyle = "#000";
-    ctx.fillRect(0, 0, can.width, can.height);
+    //Clearing old frame
+    ctx.clearRect(0, 0, can.width, can.height);
+    //Delta Time
     currentTime /= 1000;
     dt = currentTime - oldDt;
     oldDt = currentTime;
     dtf = dt * f;
-    //if (keysPressed["Space"] && !prevKeyPressed["Space"]) {
-    if (keysPressed["Space"]) {
+    bgCtx.drawImage(bg, 0, 0);
+    if (newKeysPressed["Space"]) {
+        drawObjs.push(new Shot({ x: ship["pos"]["x"] + 55, y: ship["pos"]["y"] + 23 }, { x: 7, y: -0.5 }));
         drawObjs.push(new Shot({ x: ship["pos"]["x"] + 55, y: ship["pos"]["y"] + 23 }));
+        drawObjs.push(new Shot({ x: ship["pos"]["x"] + 55, y: ship["pos"]["y"] + 23 }, { x: 7, y: 0.5 }));
     }
     for (var i = 0; i < drawObjs.length; i++) {
         if (drawObjs[i].update(dtf, keysPressed)) {
@@ -55,8 +73,14 @@ var gameLoop = function (currentTime) {
     for (var i = 0; i < drawObjs.length; i++) {
         drawObjs[i].draw(ctx);
     }
-    prevKeyPressed = keysPressed;
     requestAnimationFrame(gameLoop);
+    newKeysPressed = {
+        Left: false,
+        Down: false,
+        Right: false,
+        Up: false,
+        Space: false,
+    };
 };
 //KeyPress handler
 document.addEventListener("keydown", function (evt) {
@@ -68,29 +92,44 @@ document.addEventListener("keyup", function (evt) {
 var KeyPressHandler = function (evt, down) {
     switch (evt.code) {
         case "ArrowLeft":
+            if (keysPressed["Left"] == down)
+                return;
             keysPressed["Left"] = down;
+            newKeysPressed["Left"] = down;
             break;
         case "ArrowUp":
+            if (keysPressed["Up"] == down)
+                return;
             keysPressed["Up"] = down;
+            newKeysPressed["Up"] = down;
             break;
         case "ArrowRight":
+            if (keysPressed["Right"] == down)
+                return;
             keysPressed["Right"] = down;
+            newKeysPressed["Right"] = down;
             break;
         case "ArrowDown":
+            if (keysPressed["Down"] == down)
+                return;
             keysPressed["Down"] = down;
+            newKeysPressed["Down"] = down;
             break;
         case "Space":
+            if (keysPressed["Space"] == down)
+                return;
             keysPressed["Space"] = down;
+            newKeysPressed["Space"] = down;
             break;
     }
 };
 var redrawCan = function () {
     //can.width = window.innerWidth;
     //can.height = window.innerHeight;
-    can.width = 1280;
-    can.height = 720;
-    //can.width = 800;
-    //can.height = 600;
+    document.querySelectorAll(".can").forEach(function (element) {
+        element.width = 1280;
+        element.height = 720;
+    });
 };
 //window.addEventListener("resize", redrawCan);
 window.requestAnimationFrame(gameLoop);
